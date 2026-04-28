@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>John Von Neumann — Arquiteto do Futuro</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f0e8;
+    --gold: #c9a84c;
+    --rust: #8b3a2a;
+    --slate: #2c3e50;
+    --fade: #d4cfc4;
+    --red: #cc2200;
+  }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+background: var(–paper);
+color: var(–ink);
+font-family: ‘Crimson Pro’, serif;
+font-size: 18px;
+line-height: 1.7;
+overflow-x: hidden;
+}
+
+/* NOISE TEXTURE OVERLAY */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 999;
+opacity: 0.3;
+}
+
+/* NAV */
+nav {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 100;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 3rem;
+background: rgba(245, 240, 232, 0.92);
+backdrop-filter: blur(8px);
+border-bottom: 1px solid var(–fade);
+}
+
+nav .logo {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+letter-spacing: 0.25em;
+text-transform: uppercase;
+color: var(–rust);
+}
+
+nav ul {
+list-style: none;
+display: flex;
+gap: 2rem;
+}
+
+nav ul a {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+text-decoration: none;
+color: var(–ink);
+transition: color 0.2s;
+}
+
+nav ul a:hover { color: var(–rust); }
+
+/* HERO */
+#hero {
+min-height: 100vh;
+display: grid;
+grid-template-columns: 1fr 1fr;
+padding-top: 80px;
+position: relative;
+overflow: hidden;
+}
+
+.hero-left {
+display: flex;
+flex-direction: column;
+justify-content: center;
+padding: 6rem 4rem 6rem 6rem;
+position: relative;
+z-index: 2;
+}
+
+.hero-eyebrow {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(–rust);
+margin-bottom: 1.5rem;
+opacity: 0;
+animation: fadeUp 0.8s 0.2s forwards;
+}
+
+.hero-title {
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(3rem, 6vw, 6rem);
+font-weight: 900;
+line-height: 0.95;
+margin-bottom: 1rem;
+opacity: 0;
+animation: fadeUp 0.8s 0.4s forwards;
+}
+
+.hero-title .last-name {
+color: var(–rust);
+font-style: italic;
+}
+
+.hero-dates {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.75rem;
+letter-spacing: 0.15em;
+color: var(–gold);
+margin-bottom: 2.5rem;
+opacity: 0;
+animation: fadeUp 0.8s 0.55s forwards;
+}
+
+.hero-desc {
+font-size: 1.1rem;
+max-width: 420px;
+color: #3a3530;
+font-weight: 300;
+font-style: italic;
+opacity: 0;
+animation: fadeUp 0.8s 0.7s forwards;
+border-left: 3px solid var(–gold);
+padding-left: 1.2rem;
+}
+
+.hero-scroll {
+margin-top: 3rem;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(–fade);
+display: flex;
+align-items: center;
+gap: 0.8rem;
+opacity: 0;
+animation: fadeUp 0.8s 1s forwards;
+}
+
+.hero-scroll::before {
+content: ‘’;
+display: block;
+width: 40px;
+height: 1px;
+background: var(–fade);
+animation: scrollLine 2s infinite;
+}
+
+.hero-right {
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+}
+
+.portrait-frame {
+position: relative;
+width: 380px;
+height: 480px;
+opacity: 0;
+animation: fadeIn 1.2s 0.6s forwards;
+}
+
+.portrait-frame::before {
+content: ‘’;
+position: absolute;
+inset: -12px;
+border: 2px solid var(–gold);
+opacity: 0.4;
+z-index: 0;
+}
+
+.portrait-frame::after {
+content: ‘’;
+position: absolute;
+inset: -6px;
+border: 1px solid var(–rust);
+opacity: 0.2;
+z-index: 0;
+}
+
+.portrait-placeholder {
+width: 100%;
+height: 100%;
+background: linear-gradient(135deg, #2c2520 0%, #1a1410 40%, #3a2f28 100%);
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+position: relative;
+z-index: 1;
+overflow: hidden;
+}
+
+.portrait-placeholder::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: radial-gradient(ellipse at 50% 30%, rgba(201,168,76,0.15) 0%, transparent 70%);
+}
+
+.portrait-initials {
+font-family: ‘Playfair Display’, serif;
+font-size: 6rem;
+font-weight: 900;
+color: var(–gold);
+opacity: 0.3;
+letter-spacing: -0.05em;
+line-height: 1;
+}
+
+.portrait-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.3em;
+color: var(–fade);
+opacity: 0.5;
+margin-top: 0.5rem;
+text-transform: uppercase;
+}
+
+/* Mathematical formula overlay */
+.formula-bg {
+position: absolute;
+right: -40px;
+top: 50%;
+transform: translateY(-50%);
+font-family: ‘Playfair Display’, serif;
+font-size: 1rem;
+color: var(–gold);
+opacity: 0.06;
+white-space: nowrap;
+line-height: 2.2;
+pointer-events: none;
+writing-mode: vertical-rl;
+font-style: italic;
+}
+
+/* DECORATIVE RULE */
+.section-rule {
+width: 60px;
+height: 2px;
+background: var(–gold);
+margin: 0 auto 1rem;
+}
+
+/* TIMELINE */
+#timeline {
+padding: 8rem 0;
+background: var(–ink);
+color: var(–paper);
+position: relative;
+overflow: hidden;
+}
+
+#timeline::before {
+content: ‘CRONOLOGIA’;
+position: absolute;
+top: 4rem;
+left: -2rem;
+font-family: ‘Playfair Display’, serif;
+font-size: 14vw;
+font-weight: 900;
+color: white;
+opacity: 0.02;
+letter-spacing: -0.05em;
+pointer-events: none;
+white-space: nowrap;
+}
+
+.section-header {
+text-align: center;
+margin-bottom: 5rem;
+}
+
+.section-eyebrow {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(–gold);
+margin-bottom: 0.8rem;
+}
+
+.section-title {
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(2rem, 4vw, 3.5rem);
+font-weight: 700;
+line-height: 1.1;
+}
+
+.timeline-track {
+max-width: 900px;
+margin: 0 auto;
+padding: 0 2rem;
+position: relative;
+}
+
+.timeline-track::before {
+content: ‘’;
+position: absolute;
+left: 50%;
+top: 0; bottom: 0;
+width: 1px;
+background: linear-gradient(to bottom, transparent, var(–gold), transparent);
+transform: translateX(-50%);
+}
+
+.tl-item {
+display: grid;
+grid-template-columns: 1fr 60px 1fr;
+gap: 0;
+margin-bottom: 3.5rem;
+opacity: 0;
+transform: translateY(30px);
+transition: all 0.6s ease;
+}
+
+.tl-item.visible { opacity: 1; transform: none; }
+
+.tl-item:nth-child(odd) .tl-content { grid-column: 1; text-align: right; }
+.tl-item:nth-child(odd) .tl-empty { grid-column: 3; }
+.tl-item:nth-child(even) .tl-content { grid-column: 3; text-align: left; }
+.tl-item:nth-child(even) .tl-empty { grid-column: 1; }
+
+.tl-dot {
+grid-column: 2;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+z-index: 2;
+}
+
+.tl-dot-inner {
+width: 14px;
+height: 14px;
+background: var(–gold);
+border-radius: 50%;
+border: 3px solid var(–ink);
+box-shadow: 0 0 0 1px var(–gold);
+}
+
+.tl-year {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+color: var(–gold);
+letter-spacing: 0.1em;
+margin-bottom: 0.4rem;
+}
+
+.tl-event {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.1rem;
+font-weight: 700;
+color: var(–paper);
+margin-bottom: 0.4rem;
+}
+
+.tl-desc {
+font-size: 0.9rem;
+color: #8a8278;
+font-style: italic;
+}
+
+/* CONTRIBUTIONS */
+#contributions {
+padding: 8rem 4rem;
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.contrib-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 2px;
+margin-top: 4rem;
+background: var(–fade);
+}
+
+.contrib-card {
+background: var(–paper);
+padding: 2.5rem;
+cursor: pointer;
+transition: all 0.3s ease;
+position: relative;
+overflow: hidden;
+}
+
+.contrib-card::before {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0; right: 0;
+height: 3px;
+background: var(–gold);
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.4s ease;
+}
+
+.contrib-card:hover::before { transform: scaleX(1); }
+
+.contrib-card:hover {
+background: #f0ebe0;
+transform: translateY(-4px);
+z-index: 1;
+box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+.contrib-number {
+font-family: ‘Playfair Display’, serif;
+font-size: 3.5rem;
+font-weight: 900;
+color: var(–fade);
+line-height: 1;
+margin-bottom: 0.5rem;
+}
+
+.contrib-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.3rem;
+font-weight: 700;
+color: var(–ink);
+margin-bottom: 0.8rem;
+}
+
+.contrib-text {
+font-size: 0.9rem;
+color: #5a5550;
+line-height: 1.6;
+}
+
+.contrib-tag {
+display: inline-block;
+margin-top: 1.2rem;
+font-family: ‘DM Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–rust);
+border: 1px solid var(–rust);
+padding: 0.2rem 0.6rem;
+}
+
+/* ARCHITECTURE */
+#architecture {
+background: var(–slate);
+color: var(–paper);
+padding: 8rem 4rem;
+position: relative;
+overflow: hidden;
+}
+
+#architecture::after {
+content: ‘01001000’;
+position: absolute;
+bottom: 2rem; right: 3rem;
+font-family: ‘DM Mono’, monospace;
+font-size: 4rem;
+color: white;
+opacity: 0.03;
+letter-spacing: 0.2em;
+}
+
+.arch-container {
+max-width: 900px;
+margin: 0 auto;
+}
+
+.arch-diagram {
+margin: 4rem auto;
+position: relative;
+}
+
+.arch-boxes {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 2px;
+margin-bottom: 2px;
+}
+
+.arch-box {
+background: rgba(255,255,255,0.05);
+border: 1px solid rgba(201,168,76,0.2);
+padding: 2rem;
+text-align: center;
+transition: all 0.3s;
+cursor: default;
+}
+
+.arch-box:hover {
+background: rgba(201,168,76,0.1);
+border-color: var(–gold);
+}
+
+.arch-box-main {
+background: rgba(201,168,76,0.08);
+border: 1px solid var(–gold);
+padding: 2rem;
+text-align: center;
+grid-column: 1/-1;
+}
+
+.arch-box-title {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–gold);
+margin-bottom: 0.5rem;
+}
+
+.arch-box-desc {
+font-size: 0.85rem;
+color: #a09890;
+font-style: italic;
+}
+
+.arch-arrows {
+display: flex;
+justify-content: space-around;
+padding: 0.5rem 0;
+}
+
+.arch-arrow {
+font-family: ‘DM Mono’, monospace;
+font-size: 1.2rem;
+color: var(–gold);
+opacity: 0.5;
+}
+
+/* QUOTES */
+#quotes {
+padding: 8rem 4rem;
+background: #f0ebe0;
+}
+
+.quotes-container {
+max-width: 800px;
+margin: 0 auto;
+}
+
+.quote-item {
+position: relative;
+padding: 3rem 3.5rem;
+margin-bottom: 2rem;
+background: var(–paper);
+border-left: 4px solid var(–gold);
+opacity: 0;
+transform: translateX(-20px);
+transition: all 0.7s ease;
+}
+
+.quote-item.visible { opacity: 1; transform: none; }
+
+.quote-mark {
+position: absolute;
+top: -0.5rem;
+left: 2rem;
+font-family: ‘Playfair Display’, serif;
+font-size: 5rem;
+color: var(–gold);
+line-height: 1;
+opacity: 0.3;
+}
+
+.quote-text {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.25rem;
+font-style: italic;
+color: var(–ink);
+line-height: 1.6;
+}
+
+.quote-attr {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–rust);
+margin-top: 1.2rem;
+}
+
+/* LEGACY */
+#legacy {
+padding: 8rem 4rem;
+background: var(–ink);
+color: var(–paper);
+text-align: center;
+}
+
+.legacy-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 2rem;
+max-width: 1000px;
+margin: 4rem auto 0;
+}
+
+.legacy-stat {
+border-top: 1px solid rgba(201,168,76,0.3);
+padding-top: 1.5rem;
+}
+
+.legacy-num {
+font-family: ‘Playfair Display’, serif;
+font-size: 3rem;
+font-weight: 900;
+color: var(–gold);
+display: block;
+}
+
+.legacy-label {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: #8a8278;
+margin-top: 0.4rem;
+}
+
+.legacy-closing {
+max-width: 600px;
+margin: 5rem auto 0;
+font-size: 1.1rem;
+color: #8a8278;
+font-style: italic;
+line-height: 1.8;
+}
+
+/* FOOTER */
+footer {
+padding: 2rem 4rem;
+background: #050505;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+footer p {
+font-family: ‘DM Mono’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.15em;
+color: #3a3530;
+text-transform: uppercase;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: none; }
+}
+
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+
+@keyframes scrollLine {
+0%, 100% { width: 40px; opacity: 1; }
+50% { width: 20px; opacity: 0.3; }
+}
+
+@keyframes float {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
+}
+
+/* INTERACTIVE TOOLTIP */
+[data-tooltip] {
+position: relative;
+cursor: help;
+border-bottom: 1px dashed var(–gold);
+}
+
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: calc(100% + 8px);
+left: 50%;
+transform: translateX(-50%);
+background: var(–ink);
+color: var(–paper);
+font-family: ‘DM Mono’, monospace;
+font-size: 0.7rem;
+padding: 0.5rem 0.8rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.2s;
+z-index: 10;
+border: 1px solid var(–gold);
+}
+
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* SCROLL INDICATOR */
+#progress-bar {
+position: fixed;
+top: 0; left: 0;
+height: 2px;
+background: var(–gold);
+z-index: 200;
+width: 0%;
+transition: width 0.1s;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+#hero { grid-template-columns: 1fr; }
+.hero-right { display: none; }
+.hero-left { padding: 4rem 2rem; }
+.contrib-grid { grid-template-columns: 1fr; }
+.legacy-grid { grid-template-columns: repeat(2, 1fr); }
+nav ul { display: none; }
+.timeline-track::before { left: 20px; }
+.tl-item { grid-template-columns: 40px 1fr; }
+.tl-item:nth-child(odd) .tl-content,
+.tl-item:nth-child(even) .tl-content { grid-column: 2; text-align: left; }
+.tl-item .tl-empty { display: none; }
+.tl-dot { grid-column: 1; }
+}
+</style>
+
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav>
+  <div class="logo">Von Neumann // Pesquisa</div>
+  <ul>
+    <li><a href="#timeline">Cronologia</a></li>
+    <li><a href="#contributions">Contribuições</a></li>
+    <li><a href="#architecture">Arquitetura</a></li>
+    <li><a href="#quotes">Citações</a></li>
+    <li><a href="#legacy">Legado</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Pesquisa Biográfica & Científica</p>
+    <h1 class="hero-title">
+      John<br>Von <span class="last-name">Neumann</span>
+    </h1>
+    <p class="hero-dates">28 DEC 1903 — 08 FEB 1957</p>
+    <p class="hero-desc">
+      Matemático, físico e cientista da computação húngaro-americano, 
+      considerado um dos maiores intelectos do século XX — cujo trabalho 
+      moldou a computação moderna, a mecânica quântica e a teoria dos jogos.
+    </p>
+    <div class="hero-scroll">Rolar para explorar</div>
+  </div>
+  <div class="hero-right">
+    <div class="portrait-frame">
+      <div class="portrait-placeholder">
+        <div class="portrait-initials">JvN</div>
+        <div class="portrait-label">1903 — 1957</div>
+      </div>
+    </div>
+    <div class="formula-bg">∑∞n=0 · λn · ψ(x) · e^{iEt/ħ} · Ax=λx · ∇²φ=0</div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+
+<section id="timeline">
+  <div class="section-header">
+    <p class="section-eyebrow">Linha do Tempo</p>
+    <h2 class="section-title" style="color:var(--paper)">A Vida em Datas</h2>
+  </div>
+  <div class="timeline-track">
+
+```
+<div class="tl-item">
+  <div class="tl-content">
+    <p class="tl-year">1903</p>
+    <p class="tl-event">Nascimento em Budapeste</p>
+    <p class="tl-desc">Nasce János Lajos Margittai Neumann em Budapeste, Hungria, em uma família judaica abastada. Desde cedo demonstra memória fotográfica e talento matemático extraordinário.</p>
+  </div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-empty"></div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-empty"></div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-content">
+    <p class="tl-year">1921 — 1926</p>
+    <p class="tl-event">Formação Acadêmica Dupla</p>
+    <p class="tl-desc">Obtém simultaneamente diplomas em Engenharia Química pela ETH Zurique e Doutorado em Matemática pela Universidade de Budapeste — aos 22 anos.</p>
+  </div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-content">
+    <p class="tl-year">1928</p>
+    <p class="tl-event">Teoria dos Jogos</p>
+    <p class="tl-desc">Publica o teorema minimax — a pedra fundamental da teoria dos jogos — revolucionando a economia e a tomada de decisões estratégicas.</p>
+  </div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-empty"></div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-empty"></div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-content">
+    <p class="tl-year">1929</p>
+    <p class="tl-event">Formalização da Mecânica Quântica</p>
+    <p class="tl-desc">Fornece a fundamentação matemática rigorosa para a mecânica quântica no livro <em>Mathematische Grundlagen der Quantenmechanik</em>, usando espaços de Hilbert.</p>
+  </div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-content">
+    <p class="tl-year">1933</p>
+    <p class="tl-event">Instituto de Estudos Avançados</p>
+    <p class="tl-desc">Torna-se um dos seis professores fundadores do IAS em Princeton, ao lado de Albert Einstein — posição que manteve pelo resto da vida.</p>
+  </div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-empty"></div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-empty"></div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-content">
+    <p class="tl-year">1944</p>
+    <p class="tl-event">Projeto Manhattan</p>
+    <p class="tl-desc">Contribui de forma decisiva para o desenvolvimento da bomba atômica, especialmente no design de lentes explosivas para a bomba de implosão utilizada em Nagasaki.</p>
+  </div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-content">
+    <p class="tl-year">1945</p>
+    <p class="tl-event">Arquitetura Von Neumann</p>
+    <p class="tl-desc">Redige o relatório "First Draft of a Report on the EDVAC", descrevendo a arquitetura de computadores com programa armazenado — base de todos os computadores modernos.</p>
+  </div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-empty"></div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-empty"></div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-content">
+    <p class="tl-year">1944 — 1953</p>
+    <p class="tl-event">Teoria dos Jogos & Economia</p>
+    <p class="tl-desc">Co-escreve com Oskar Morgenstern <em>Theory of Games and Economic Behavior</em> (1944), obra monumental que funda a teoria moderna dos jogos.</p>
+  </div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-content">
+    <p class="tl-year">1952</p>
+    <p class="tl-event">Autômatos Celulares</p>
+    <p class="tl-desc">Desenvolve a teoria dos autômatos auto-replicantes, precursora da vida artificial e de conceitos como o Jogo da Vida de Conway.</p>
+  </div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-empty"></div>
+</div>
+
+<div class="tl-item">
+  <div class="tl-empty"></div>
+  <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+  <div class="tl-content">
+    <p class="tl-year">1957</p>
+    <p class="tl-event">Falecimento</p>
+    <p class="tl-desc">Morre em Washington D.C., em 8 de fevereiro, aos 53 anos, de câncer possivelmente causado pela exposição à radiação nos testes nucleares.</p>
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- CONTRIBUTIONS -->
+
+<section id="contributions">
+  <div class="section-header" style="text-align:left">
+    <p class="section-eyebrow">Áreas de Atuação</p>
+    <h2 class="section-title">Contribuições Científicas</h2>
+  </div>
+
+  <div class="contrib-grid">
+    <div class="contrib-card">
+      <div class="contrib-number">01</div>
+      <h3 class="contrib-title">Arquitetura de Computadores</h3>
+      <p class="contrib-text">Propôs o modelo de computador com <span data-tooltip="Memória que armazena instruções e dados">programa armazenado em memória</span>, unidade de controle, ULA e dispositivos de I/O — estrutura que fundamenta todos os processadores modernos.</p>
+      <span class="contrib-tag">Computação</span>
+    </div>
+
+```
+<div class="contrib-card">
+  <div class="contrib-number">02</div>
+  <h3 class="contrib-title">Mecânica Quântica</h3>
+  <p class="contrib-text">Forneceu o arcabouço matemático completo da mecânica quântica usando <span data-tooltip="Espaços vetoriais de dimensão infinita">espaços de Hilbert</span> e operadores lineares, além do famoso teorema sobre variáveis ocultas.</p>
+  <span class="contrib-tag">Física</span>
+</div>
+
+<div class="contrib-card">
+  <div class="contrib-number">03</div>
+  <h3 class="contrib-title">Teoria dos Jogos</h3>
+  <p class="contrib-text">Criou os fundamentos matemáticos para análise de conflitos e cooperação. O <span data-tooltip="Cada jogador escolhe a estratégia que minimiza sua perda máxima">teorema minimax</span> ainda orienta a inteligência artificial e a economia comportamental.</p>
+  <span class="contrib-tag">Matemática</span>
+</div>
+
+<div class="contrib-card">
+  <div class="contrib-number">04</div>
+  <h3 class="contrib-title">Análise Numérica</h3>
+  <p class="contrib-text">Desenvolveu métodos para resolver equações diferenciais em computadores, incluindo o <span data-tooltip="Método de amostragem aleatória para cálculo numérico">Método de Monte Carlo</span> junto com Stanislaw Ulam — fundamental em simulações científicas.</p>
+  <span class="contrib-tag">Matemática Aplicada</span>
+</div>
+
+<div class="contrib-card">
+  <div class="contrib-number">05</div>
+  <h3 class="contrib-title">Física Nuclear</h3>
+  <p class="contrib-text">No Projeto Manhattan, criou os cálculos para as lentes explosivas do dispositivo de implosão e foi consultor chave para a bomba de hidrogênio, desenvolvendo simulações termonucleares.</p>
+  <span class="contrib-tag">Física Nuclear</span>
+</div>
+
+<div class="contrib-card">
+  <div class="contrib-number">06</div>
+  <h3 class="contrib-title">Autômatos Celulares</h3>
+  <p class="contrib-text">Teorizou máquinas capazes de se auto-replicar usando autômatos celulares, antecipando conceitos de <span data-tooltip="Vida gerada computacionalmente por regras simples">vida artificial</span>, biologia computacional e nanotecnologia.</p>
+  <span class="contrib-tag">Ciência da Computação</span>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- ARCHITECTURE DIAGRAM -->
+
+<section id="architecture">
+  <div class="arch-container">
+    <div class="section-header">
+      <p class="section-eyebrow" style="color:var(--gold)">Diagrama Interativo</p>
+      <h2 class="section-title">A Arquitetura Von Neumann</h2>
+      <p style="color:#8a8278; margin-top:1rem; font-style:italic; font-size:1rem">
+        O modelo que definiu a computação moderna — proposto em 1945 no relatório EDVAC
+      </p>
+    </div>
+
+```
+<div class="arch-diagram">
+  <div class="arch-boxes" style="margin-bottom:2px">
+    <div class="arch-box" onmouseenter="this.querySelector('.arch-box-desc').style.color='#c9a84c'" onmouseleave="this.querySelector('.arch-box-desc').style.color='#a09890'">
+      <div class="arch-box-title">Unidade de Entrada</div>
+      <div class="arch-box-desc">Teclado, mouse, sensores — dados brutos ingressam no sistema</div>
+    </div>
+    <div class="arch-box" onmouseenter="this.querySelector('.arch-box-desc').style.color='#c9a84c'" onmouseleave="this.querySelector('.arch-box-desc').style.color='#a09890'">
+      <div class="arch-box-title">Unidade de Saída</div>
+      <div class="arch-box-desc">Monitor, impressora, alto-falante — resultados para o mundo externo</div>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:center; padding:0.6rem 0; opacity:0.5;">
+    <span style="font-family:'DM Mono',monospace; color:var(--gold); font-size:1.4rem;">↑ ↓</span>
+  </div>
+
+  <div class="arch-boxes" style="margin-bottom:2px">
+    <div class="arch-box" onmouseenter="this.querySelector('.arch-box-desc').style.color='#c9a84c'" onmouseleave="this.querySelector('.arch-box-desc').style.color='#a09890'">
+      <div class="arch-box-title">Memória Principal</div>
+      <div class="arch-box-desc">Armazena dados E instruções do programa no mesmo espaço — inovação central de Von Neumann</div>
+    </div>
+    <div class="arch-box" onmouseenter="this.querySelector('.arch-box-desc').style.color='#c9a84c'" onmouseleave="this.querySelector('.arch-box-desc').style.color='#a09890'">
+      <div class="arch-box-title">Unidade Aritmética (ULA)</div>
+      <div class="arch-box-desc">Realiza operações matemáticas e lógicas sobre os dados carregados da memória</div>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:center; padding:0.6rem 0; opacity:0.5;">
+    <span style="font-family:'DM Mono',monospace; color:var(--gold); font-size:1.4rem;">↑ ↓</span>
+  </div>
+
+  <div style="background:rgba(201,168,76,0.08); border:1px solid var(--gold); padding:2rem; text-align:center;">
+    <div class="arch-box-title" style="font-size:0.85rem;">Unidade de Controle (UC)</div>
+    <div class="arch-box-desc" style="color:#c9a84c; margin-top:0.4rem;">O cérebro — busca, decodifica e executa instruções em sequência. Dirige todos os outros componentes.</div>
+  </div>
+</div>
+
+<p style="color:#6a6258; font-size:0.85rem; text-align:center; font-style:italic; margin-top:1rem;">
+  Passe o mouse sobre cada componente para explorar. Esta estrutura está presente em todo smartphone, laptop e servidor do mundo.
+</p>
+```
+
+  </div>
+</section>
+
+<!-- QUOTES -->
+
+<section id="quotes">
+  <div class="section-header">
+    <p class="section-eyebrow">Em Suas Palavras e Sobre Ele</p>
+    <h2 class="section-title">Citações Memoráveis</h2>
+  </div>
+  <div class="quotes-container">
+
+```
+<div class="quote-item">
+  <span class="quote-mark">"</span>
+  <p class="quote-text">Em matemática você não entende as coisas. Você simplesmente se acostuma com elas.</p>
+  <p class="quote-attr">— John Von Neumann</p>
+</div>
+
+<div class="quote-item">
+  <span class="quote-mark">"</span>
+  <p class="quote-text">Se as pessoas não acreditam que a matemática é simples, é porque não percebem o quão complicada é a vida.</p>
+  <p class="quote-attr">— John Von Neumann</p>
+</div>
+
+<div class="quote-item">
+  <span class="quote-mark">"</span>
+  <p class="quote-text">Qualquer um que pretenda selecionar números aleatórios por métodos aritméticos está, claro, em estado de pecado.</p>
+  <p class="quote-attr">— John Von Neumann, sobre pseudoaleatoriedade</p>
+</div>
+
+<div class="quote-item">
+  <span class="quote-mark">"</span>
+  <p class="quote-text">Johnny estava muito mais inteligente do que qualquer um de nós, não apenas um grau a mais — mas por uma ordem de magnitude.</p>
+  <p class="quote-attr">— Edward Teller, físico nuclear</p>
+</div>
+
+<div class="quote-item">
+  <span class="quote-mark">"</span>
+  <p class="quote-text">Ele sabia muito sobre tudo. Era impossível estar à altura de seu conhecimento em qualquer assunto, fosse história, idiomas, física ou matemática.</p>
+  <p class="quote-attr">— Eugene Wigner, Nobel de Física</p>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- LEGACY -->
+
+<section id="legacy">
+  <div class="section-header">
+    <p class="section-eyebrow">Impacto Duradouro</p>
+    <h2 class="section-title" style="color:var(--paper)">O Legado</h2>
+  </div>
+
+  <div class="legacy-grid">
+    <div class="legacy-stat">
+      <span class="legacy-num" id="count1">0</span>
+      <span class="legacy-label">Campos Científicos<br>Transformados</span>
+    </div>
+    <div class="legacy-stat">
+      <span class="legacy-num" id="count2">0</span>
+      <span class="legacy-label">Artigos e Livros<br>Publicados</span>
+    </div>
+    <div class="legacy-stat">
+      <span class="legacy-num" id="count3">0</span>
+      <span class="legacy-label">Anos de Carreira<br>Ativa</span>
+    </div>
+    <div class="legacy-stat">
+      <span class="legacy-num" id="count4">0</span>
+      <span class="legacy-label">Idiomas<br>Fluentes</span>
+    </div>
+  </div>
+
+  <p class="legacy-closing">
+    Von Neumann não apenas contribuiu para a ciência — ele a reescreveu em múltiplas frentes simultaneamente. 
+    Sua arquitetura de computadores permanece viva em cada dispositivo digital no planeta. 
+    Sua teoria dos jogos molda decisões em economia, política e inteligência artificial. 
+    Sua formalização da mecânica quântica é o alicerce da física moderna. 
+    Setenta anos após sua morte, seu legado segue em expansão.
+  </p>
+</section>
+
+<footer>
+  <p>Pesquisa sobre John Von Neumann — Trabalho Acadêmico</p>
+  <p>1903 — 1957 · Budapeste → Princeton</p>
+</footer>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight - window.innerHeight;
+    const progress = (window.scrollY / total) * 100;
+    document.getElementById('progress-bar').style.width = progress + '%';
+  });
+
+  // Intersection Observer for animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.tl-item, .quote-item').forEach(el => observer.observe(el));
+
+  // Counters
+  const counters = [
+    { id: 'count1', target: 6, suffix: '+' },
+    { id: 'count2', target: 150, suffix: '+' },
+    { id: 'count3', target: 30, suffix: '' },
+    { id: 'count4', target: 7, suffix: '' },
+  ];
+
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const data = counters.find(c => c.id === el.id);
+        if (!data) return;
+        let current = 0;
+        const step = Math.ceil(data.target / 40);
+        const timer = setInterval(() => {
+          current = Math.min(current + step, data.target);
+          el.textContent = current + data.suffix;
+          if (current >= data.target) clearInterval(timer);
+        }, 35);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach(c => {
+    const el = document.getElementById(c.id);
+    if (el) counterObserver.observe(el);
+  });
+
+  // Smooth nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav ul a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--rust)' : '';
+    });
+  });
+</script>
+
+</body>
+</html>
